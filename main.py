@@ -52,5 +52,5 @@ VarNet_test.train(folderpath, weight=[1.e1, 1.e1, 1.],
 
 # %% Simulation results
 
-VarNet_1dt.loadModel()
-VarNet_1dt.simRes()
+VarNet_test.loadModel()
+VarNet_test.simRes()
