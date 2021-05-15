@@ -52,7 +52,7 @@ from scipy import interpolate
 
 import matplotlib.pyplot as plt
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from TFModel import TFNN
 from VarNetUtility import RNNData, FIXData, ManageTrainData, TrainResult
@@ -61,6 +61,8 @@ from ContourPlot import ContourPlot
 
 from UtilityFunc import UF
 uf = UF()
+
+tf.disable_v2_behavior()
 
 #%% Training class:
         

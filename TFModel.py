@@ -41,13 +41,15 @@ shape = np.shape
 reshape = np.reshape
 size = np.size
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
 from tensorflow.python.client import device_lib
 
 from UtilityFunc import UF
 uf = UF()
+
+tf.disable_v2_behavior()
 
 #%% Data Parallelism (Replicated Training)
         
