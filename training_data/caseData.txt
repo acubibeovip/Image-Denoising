@@ -10068,3 +10068,6 @@ Epoch 30000: loss = 16874.37500
 Epoch 40000: loss = 9126.96191
 Epoch 50000: loss = 4835.72803
 Epoch 60000: loss = 2721.47607
+Epoch 70000: loss = 1567.06226
+Epoch 80000: loss = 1070.64380
+Epoch 90000: loss = 886.59515
