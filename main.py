@@ -47,10 +47,10 @@ uf.clearFolder(folderpath)
 # uf.copyFile('main.py', folderpath)
 
 
-VarNet_test.train(folderpath, weight=[1.e1, 1.e1, 1.],
-                  smpScheme='optimal', saveFreq=10000, adjustWeight=True)
+# VarNet_test.train(folderpath, weight=[1.e1, 1.e1, 1.],
+#                   smpScheme='optimal', saveFreq=10000, adjustWeight=True)
 
 # %% Simulation results
 
-VarNet_test.loadModel()
+VarNet_test.loadModel(folderpath=folderpath)
 VarNet_test.simRes()
