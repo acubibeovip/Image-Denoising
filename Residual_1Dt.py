@@ -46,7 +46,7 @@ Analytical and Finite Element solutions. Computers & Fluids, 107:189–195, 2015
 
 import os
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import numpy as np
 pi = np.pi
@@ -59,12 +59,14 @@ import numpy.linalg as la
 import time
 
 import matplotlib.pyplot as plt
-from IPython import get_ipython
-get_ipython().run_line_magic('matplotlib', 'inline')
+# from IPython import get_ipython
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
 sess = tf.Session()
+
+tf.disable_eager_execution()
 
 #%% 1D AD-PDE: closed-form solution
 
@@ -113,9 +115,16 @@ coord2 = np.arange(l1,l2+0.01,0.01)
 
 # Analytical solution (see the reference for sanity check):
 cEx = cExact(time2, coord2)
+print(cEx)
 cInit = reshape(IC(coord2), [1, len(coord2)])
 cEx = np.concatenate([cInit, cEx], axis=0)
 time2 = np.append(0, time2)
+
+print("\n\n cEx: ======================================================")
+print(cEx)
+print("\n\n cInit: ======================================================")
+print(cInit)
+
 
 print('\nPeclet number: %2.2f' % (u*(l2-l1)/D))
 
