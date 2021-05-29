@@ -45,6 +45,16 @@ Sampling scheme for training points: optimal
 Note: since for non-uniform grid the training points and possibly weights are updated
       the loss component plots will not necessarily match total loss plot!
 
+==========================================================
+Simulation results:
+
+Normalized approximation error: 0.02323
+
+==========================================================
+Simulation results:
+
+Normalized approximation error: 0.02323
+
 Weighting information:
 	requested weights: [10.0, 10.0, 1.0]
 	weights on boundary-initial conditions updated after addition of non-uniform points
