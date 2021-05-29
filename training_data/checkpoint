@@ -1,3 +1,2 @@
-model_checkpoint_path: "/content/training_data/best_model-273000"
-all_model_checkpoint_paths: "/content/training_data/best_model-272000"
-all_model_checkpoint_paths: "/content/training_data/best_model-273000"
+model_checkpoint_path: '/content/training_data/best_model-500000'
+all_model_checkpoint_paths: '/content/training_data/best_model-500000'
