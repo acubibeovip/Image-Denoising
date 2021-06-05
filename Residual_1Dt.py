@@ -60,7 +60,7 @@ import time
 
 import matplotlib.pyplot as plt
 from IPython import get_ipython
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
@@ -235,7 +235,7 @@ sess.run(tf.global_variables_initializer())                 # initialize all var
 #%% Folder to Store Checkpoints:
 
 #filepath = '/Users/Riza/Documents/Python/TF_checkpoints'
-filepath = '/home/reza/Documents/Python/TF_checkpoints'           # Linux
+filepath = 'c:/Users/sonli/OneDrive/Desktop/Image-Denoising/training_data_test'           # Linux
 for the_file in os.listdir(filepath):
     file_path = os.path.join(filepath, the_file)
     try:
