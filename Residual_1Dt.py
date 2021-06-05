@@ -46,7 +46,7 @@ Analytical and Finite Element solutions. Computers & Fluids, 107:189–195, 2015
 
 import os
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import numpy as np
 pi = np.pi
@@ -65,6 +65,8 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
 sess = tf.Session()
+
+tf.disable_eager_execution()
 
 #%% 1D AD-PDE: closed-form solution
 
@@ -252,7 +254,7 @@ filepath2 = os.path.join(filepath, 'best_model')
 
 #%% Training:
 
-epochs = range(500000)
+epochs = range(2000)
 
 for epoch in epochs:                                        # loops over all training data every time
     t = time.clock()
