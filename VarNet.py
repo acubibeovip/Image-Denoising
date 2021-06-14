@@ -1346,13 +1346,13 @@ class VarNet():
         # =================================================================== #
         # Training loop:
         for epoch in range(1,epochNum+1):                               # loop over training epochs
-            t = time.clock()
+            t = time.process_time()
             current_loss = 0
                 
             for batch in MORbatchRange:                                 # loop over MOR batches
                 tData = self.trainData(batch, MORdiscArg, tData)
                 current_loss += tData.optimIter(tfData)
-            epoch_time += time.clock()-t
+            epoch_time += time.process_time()-t
             
             if shuffleData and epoch%shuffleFreq==0:
                 tData.shuffleTrainData(fixData)                         # shuffle training points
