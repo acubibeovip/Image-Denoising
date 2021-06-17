@@ -139,7 +139,7 @@ domain = PolygonDomain2D(vertices)
 
 contPlt = ContourPlot(domain, tInterval=[0, T])
 
-contPlt.animPlot(cExFun)
+# contPlt.animPlot(cExFun)
 
 #%% AD-PDE:
 
@@ -164,12 +164,12 @@ folderpath = '/home/reza/Documents/Python/TF_checkpoints'           # Linux
 uf.clearFolder(folderpath)
 uf.copyFile('Operator_anal2Dt.py', folderpath)                      # backup current operator settings
 
-VarNet_2d.train(folderpath, weight=[5, 1, 1], smpScheme='uniform')
+# VarNet_2d.train(folderpath, weight=[5, 1, 1], smpScheme='uniform')
 
 #%% Simulation results:
 
-VarNet_2d.loadModel()
-VarNet_2d.simRes()
+VarNet_2d.loadModel(iterNum=39800, folderpath=folderpath)
+# VarNet_2d.simRes()
 
 # Solution error:
 tcoord = reshape(np.linspace(0, T, num=nt), [nt,1])                 # temporal discretization
