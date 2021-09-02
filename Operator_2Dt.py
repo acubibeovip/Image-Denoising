@@ -72,8 +72,8 @@ from UtilityFunc import UF
 uf = UF()
 
 import matplotlib.pyplot as plt
-from IPython import get_ipython
-get_ipython().run_line_magic('matplotlib', 'inline')
+# from IPython import get_ipython
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 #%% PDE input data:
@@ -139,7 +139,7 @@ domain = PolygonDomain2D(vertices)
 
 contPlt = ContourPlot(domain, tInterval=[0, T])
 
-contPlt.animPlot(cExFun)
+# contPlt.animPlot(cExFun)
 
 #%% AD-PDE:
 
@@ -153,8 +153,7 @@ VarNet_2d = VarNet(ADPDE_2d,
                     layerWidth = [10, 20],
                     discNum=[80, 40],
                     bDiscNum=40,
-                    tDiscNum=75,
-                    processors = 'GPU:0')
+                    tDiscNum=75)
 
 #%% Training:
 

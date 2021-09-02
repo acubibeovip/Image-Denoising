@@ -59,8 +59,6 @@ import numpy.linalg as la
 import time
 
 import matplotlib.pyplot as plt
-from IPython import get_ipython
-get_ipython().run_line_magic('matplotlib', 'inline')
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
