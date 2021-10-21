@@ -78,35 +78,6 @@ class TF_ELM():
         # return self._sess.run(N, feed_dict={self._x: x})
         # return self._sess.run(N, feed_dict={self._x: x, self._beta: beta})
         return N
-    
-    def train(self, Input, iInput, bInput):
-        vel = 1.0                         # velocity magnitude
-        diff = 0.1/np.pi                      # diffusivity
-        beta = np.zeros((self.hiddenNodes, self.outputNodes))
-        a = self.hiddenOut(Input, beta)
-        du = tf.gradients(self.hiddenOut(Input, beta), self._beta)
-
-        H = []
-        for i, x in enumerate(Input):
-            dC_dx = tf.gradients(self.hiddenOut(x)[i, :], self._x)[0]            # first order derivative wrt time and space
-            dC_dt = dC_dx[:,1]
-            d2C_dx2 = tf.gradients(dC_dx[:,0], self._x)[0]        # second order derivative
-            d2C_dx2 = d2C_dx2[:,0]                          # second order derivative wrt space
-            res = dC_dt - diff*d2C_dx2 + vel*dC_dx[:,0]
-            H.append(res)
-        
-        for i in range(iInput.shape[0]):
-            phi2 = self.N()
-            H.append(phi2)
-        for i in range(bInput.shape[0]):
-            phi3 = self.N()[i, 0]
-            H.append(phi3)
-
-        
-        self.H = tf.stack(H)
-        
-        pass
-
 
     def pinv(self, A):
         # Moore-Penrose pseudo-inverse
@@ -129,18 +100,18 @@ class TF_ELM():
         return _A
 
 
-    # def train(self, x, y, name="elm_train"):
+    def train(self, x, y, name="elm_train"):
         
-    #     with tf.name_scope("{}_{}".format(name, 'hidden')):
-    #         with tf.name_scope("H"):
-    #             h_matrix = tf.matmul(x, self._weight) + self._bias
-    #             h_act = self._activation(h_matrix)
+        with tf.name_scope("{}_{}".format(name, 'hidden')):
+            with tf.name_scope("H"):
+                h_matrix = tf.matmul(x, self._weight) + self._bias
+                h_act = self._activation(h_matrix)
 
-    #         h_pinv = self.pinv(h_act)
+            h_pinv = self.pinv(h_act)
 
-    #         with tf.name_scope("Beta"):
-    #             beta = tf.matmul(h_pinv, y)
-    #         return beta
+            with tf.name_scope("Beta"):
+                beta = tf.matmul(h_pinv, y)
+            return beta
 
 
     def inference(self, x, beta, name="elm_inference"):
@@ -178,21 +149,6 @@ class TF_ELM():
 
         self._beta = tf.matmul(h_inv, self._y)
         
-    def fit1D(self, x_input, y_input):
-        # self._sess.run(self.H, feed_dict={self._x: x_input, self._xi: iInput, self._xb: bInput})
-        beta = self._sess.run(self._beta, feed_dict={self._x: x_input, self._y: y_input})
-        return beta
-    
-    def evaluate(self, beta, x_test, y_test, itest, btest):
-        y_out = tf.matmul(self.H, self._beta)
-        # correct_pred = tf.equal(tf.argmax(self._y, 1), tf.argmax(y_out, 1))
-        # accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-        # ret = self._sess.run(accuracy, feed_dict={self._x: x_test, self._xi: itest, self._xb: btest, self._y: y_test})
-        # a = list(map(lambda x: float(x), ret))
-
-        return self._sess.run(y_out, feed_dict={self._beta: beta})
-    
-        
         
     def test_1D(self, diff, vel, x_input, y_input, iInput, bInput):
         start = time.perf_counter()
@@ -224,40 +180,38 @@ class TF_ELM():
 
         self._beta = tf.matmul(h_inv, self._y)
         
-        result = self._sess.run(self._beta, feed_dict={self._y: y_input})
+        self._beta = self._sess.run(self._beta, feed_dict={self._y: y_input})
         end = time.perf_counter()
         print("Training time:", str(end - start))
-        
-        self.H = H_matrix
-        return H_matrix, result
+
     
     def predict_1D(self, h_matrix, beta):
         y_out = tf.matmul(h_matrix, self._beta)
         return self._sess.run(y_out, feed_dict={self._beta: beta})
     
     
-    def predict2(self, x, beta):
+    def predict2(self, x):
         wt = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
         y_out = tf.matmul(wt, self._beta)
-        return self._sess.run(y_out, feed_dict={self._x: x, self._beta: beta})
+        return self._sess.run(y_out, feed_dict={self._x: x})
+     
+    def sigmoid(self, z):
+        y= np.exp(-z)
+        y1 = np.exp(z)
+        return (y1 - y) / (y1 + y)
+    
+     
+    def N(self, x, beta):
+        bias = self._sess.run(self._bias)
+        W = self._sess.run(self._weight)
+        wt = self.sigmoid(np.add(np.dot(x, W), bias))
+        return ((np.dot(wt, beta)))
         
 
+    def elm(self, x, t, beta):
+        em = np.zeros_like(x)
+        for i, v in enumerate(x):
+            em[i] = self.N(np.array([v, t]), beta)
+        return em
 
-    
-    def compute_loss(self, logits, labels):
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
-        cross_entropy_mean = tf.reduce_mean(
-            cross_entropy
-        )
-
-        tf.summary.scalar("loss", cross_entropy_mean)
-
-        return cross_entropy_mean
-
-
-    def compute_accuracy(self, logits, labels):
-        correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
-        accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-        tf.summary.scalar("accuracy", accuracy)
-        return accuracy
     
