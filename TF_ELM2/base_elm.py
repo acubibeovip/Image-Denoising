@@ -90,13 +90,13 @@ class TF_ELM():
             u_t = tf.transpose(u)
             return tf.matmul(left_mul, u_t)
         
-    def p_inv(self, matrix):
+    def p_inv(self, matrix, _lambda=1e-6):
         
         """Returns the Moore-Penrose pseudo-inverse"""
-
+        print("lamda: ", _lambda)
         s, u, v = tf.svd(matrix)
         
-        threshold = tf.reduce_max(s) * 1e-5
+        threshold = tf.reduce_max(s) * _lambda
         s_mask = tf.boolean_mask(s, s > threshold)
         s_inv = tf.diag(tf.concat([1. / s_mask, tf.zeros([tf.size(s) - tf.size(s_mask)])], 0))
 
@@ -192,12 +192,14 @@ class TF_ELM():
         
         # h_inv = self.pinv(H_matrix)
         # h_inv = self.regularized_ls(H_matrix, 1 / (self.outputNodes * self.hiddenNodes))
-        h_inv = self.p_inv(H_matrix)
+        # h_inv = self.p_inv(H_matrix, 1e-6)
+        h_inv = tf.linalg.pinv(H_matrix)
 
         self._beta = tf.matmul(h_inv, self._y)
         
         self._beta = self._sess.run(self._beta, feed_dict={self._y: y_input})
         end = time.perf_counter()
+        print("Hidden nodes:", self.hiddenNodes)
         print("Training time:", str(timedelta(seconds=(end - start))))
     
     
