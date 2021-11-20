@@ -24,7 +24,7 @@ uf = UF()
 
 sess = tf.Session()
 
-from TF_ELM2.base_elm import TF_ELM
+from TF_ELM.base_elm import TF_ELM
 
 #%% 1D AD-PDE: closed-form solution
 
