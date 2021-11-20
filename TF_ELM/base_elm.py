@@ -4,6 +4,7 @@ import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 from tensorflow.python.ops.parallel_for.gradients import jacobian, batch_jacobian
 import numpy as np
+import torch
 
 class TF_ELM():
     def __init__(self,
@@ -51,34 +52,8 @@ class TF_ELM():
         self.inputNodes = inputNodes
         self.hiddenNodes = hiddenNodes
         self.outputNodes = outputNodes
-        # self._activation = activationFun
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
-
-    def activationFun_derivative(self, x, name):
-        """
-        Compute the gradient (slope/derivative) of the activation function with
-        respect to its input x.
-
-        Args:
-        x: scalar or numpy array
-
-        Returns:
-        gradient: gradient of the activation function with respect to x
-        """
-        if(name == "sigmoid"):    
-            y = tf.nn.sigmoid(x)
-            return y * (1 - y)
-        elif(name == "tanh"):
-            y = tf.tanh(x)
-            return 1 - y**2
-
-    def hiddenOut(self, x):
-        wt = self.activationFun_derivative(tf.add(tf.matmul(self._x, self._weight), self._bias), name = "tanh")
-        N = tf.matmul(wt, self._beta)
-        return self._sess.run(N, feed_dict={self._x: x})
-        # return self._sess.run(N, feed_dict={self._x: x, self._beta: beta})
-        # return N
 
     def pinv(self, A):
         # Moore-Penrose pseudo-inverse
@@ -111,61 +86,8 @@ class TF_ELM():
         else:
             _A = tf.matmul(tf.matrix_inverse(_lambda * np.eye(shape[1]) + tf.matmul(A_t, A)), A_t)
         return _A
-
-
-    # def train(self, x, y, name="elm_train"):
         
-    #     with tf.name_scope("{}_{}".format(name, 'hidden')):
-    #         with tf.name_scope("H"):
-    #             h_matrix = tf.matmul(x, self._weight) + self._bias
-    #             h_act = self._activation(h_matrix)
-
-    #         h_pinv = self.pinv(h_act)
-
-    #         with tf.name_scope("Beta"):
-    #             beta = tf.matmul(h_pinv, y)
-    #         return beta
-
-
-    # def inference(self, x, beta, name="elm_inference"):
-    #     with tf.name_scope("{}_{}".format(name, 'out')):
-    #         with tf.name_scope("H"):
-    #             h_matrix = tf.matmul(x, self._weight) + self._bias
-    #             h_act = self._activation(h_matrix)
-
-    #         out = tf.matmul(h_act, beta)
-    #         return out
-        
-        
-    def compile(self):
-        vel = 1.0                         # velocity magnitude
-        diff = 0.1/np.pi                      # diffusivity
-
-        phi1 = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
-
-        H = []
-        for i in range(self.hiddenNodes):
-            dC_dx = tf.gradients(phi1[:, i], self._x)[0]            # first order derivative wrt time and space
-            dC_dt = dC_dx[:,1]
-            d2C_dx2 = tf.gradients(dC_dx[:,0], self._x)[0]        # second order derivative
-            d2C_dx2 = d2C_dx2[:,0]                          # second order derivative wrt space
-            res = dC_dt - diff*d2C_dx2 + vel*dC_dx[:,0]
-            H.append(res)
-        
-        res_result = tf.transpose(tf.stack(H))
-        phi2 = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
-        phi3 = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
-        
-        self.H = tf.concat([res_result, phi2, phi3], axis=0)
-        # h_inv = self.pinv(self.H)
-        h_inv = self.regularized_ls(self.H, 1 / (self.outputNodes * self.hiddenNodes))
-
-        self._beta = tf.matmul(h_inv, self._y)
-        
-    def train(self, x_input, y_input):
-        self._sess.run(self._beta, feed_dict={self._x: x_input, self._y: y_input})
-        
-    def test_1D(self, diff, vel, x_input, y_input, iInput, bInput):
+    def train(self, diff, vel, x_input, y_input, iInput, bInput):
         start = time.perf_counter()
         phi1 = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
         
@@ -176,7 +98,7 @@ class TF_ELM():
             d2C_dx2 = tf.gradients(dC_dx[:,0], self._x)[0]        # second order derivative
             d2C_dx2 = d2C_dx2[:,0]                          # second order derivative wrt space
             res = dC_dt - diff*d2C_dx2 + vel*dC_dx[:,0]
-            # x_reshape = x_input[i].reshape((1, x_input[i].size))
+
             gradients = self._sess.run(res, feed_dict={self._x: x_input})
             H.append(gradients)
         
@@ -203,7 +125,7 @@ class TF_ELM():
         print("Training time:", str(timedelta(seconds=(end - start))))
     
     
-    def predict2(self, x):
+    def predict(self, x):
         wt = self._activation(tf.add(tf.matmul(self._x, self._weight), self._bias))
         y_out = tf.matmul(wt, self._beta)
         return self._sess.run(y_out, feed_dict={self._x: x})
