@@ -193,9 +193,12 @@ class UF():
             val [m x dim]: vector of values to be found in 'x'
         """
         # Handle errors:
+        x = np.reshape(x,(-1,1)) # dong can sua doi moi chay !!!!!
+
         if not type(x) in [list, np.ndarray]:
             raise TypeError('\'x\' must be a column matrix!')
         if type(x) is list: x = np.array(x)
+
         if not size(x.shape)==2: raise ValueError('\'x\' must be a column matrix!')
         dim = x.shape[1]
         
