@@ -1914,7 +1914,7 @@ class VarNet():
         
         # Get the mesh for the domain:
         discNum2 = [math.ceil(frac2*disc2) for disc2 in discNum]
-        bDiscNum2 = math.ceil(frac2*bDiscNum)
+        #bDiscNum2 = math.ceil(frac2*bDiscNum)
         bDiscNum2 = [math.ceil(frac2*bdisc2) for bdisc2 in bDiscNum] # Q
 
         mesh = domain.getMesh(discNum2, bDiscNum2)
