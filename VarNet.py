@@ -1199,7 +1199,7 @@ class VarNet():
     def train(self, folderpath, weight=None, smpScheme='uniform', epochNum=500000,
               tol=1.e-1, verbose=True, saveFreq=100, pltReplace=True, saveMORdata=False,
               frac=None, addTrainPts=True, suppFactor=1.0, multiTrainUpd=False,
-              trainUpdelay=200, tolUpd = 0.01, reinitrain = True,
+              trainUpdelay=2e4, tolUpd = 0.01, reinitrain = True,
               updateWeights=False, normalizeW=False, adjustWeight=False, useOriginalW=False,
               batchNum=None, batchLen=None, shuffleData=False, shuffleFreq=1):
         """
@@ -1288,7 +1288,7 @@ class VarNet():
         integPnum = fixData.integPnum
         MORbatchNum = fixData.MORbatchNum                           # number of MOR batches
         MORbatchRange = np.arange(MORbatchNum)
-    
+        
         tfData = self.tfData
         graph = tfData.graph
         saver = tfData.saver
@@ -1342,6 +1342,7 @@ class VarNet():
         tp_updates = 0
         resVal, err, lossComp, lossVec = [None]*4
         filepath2 = os.path.join(folderpath, 'best_model')
+        
         # =================================================================== #
         # Training loop:
         for epoch in range(1,epochNum+1):                               # loop over training epochs
@@ -1360,11 +1361,9 @@ class VarNet():
             if epoch%saveFreq==0:
                 if min_loss>current_loss:
                     min_loss = current_loss
-                    #tfData.model.save(filepath2) #Hieu
                     saver.save(sess, filepath2, global_step=epoch)      # save best model so far
                 resVal, _, err, _ = self.residual()
-#                if not uf.isnone(MORvar): tData0.inpu
-# tUpdated = True    # use already computed PDE-data if possible
+#                if not uf.isnone(MORvar): tData0.inputUpdated = True    # use already computed PDE-data if possible
                 lossComp, _, lossVec = self.splitLoss(tData0, fixData0)
                 
             # Output training results:
@@ -1385,7 +1384,7 @@ class VarNet():
                 break
             
             # Regenerate the training data:
-            if not smpScheme=='uniform' and (multiTrainUpd or tp_updates==0) and (epoch-tp_epoch)>=(trainUpdelay-1):#Thay 2e4--->200 
+            if not smpScheme=='uniform' and (multiTrainUpd or tp_updates==0) and (epoch-tp_epoch)>=(trainUpdelay-1):
                 t_loss = np.array(self.trainRes.loss[-5:])
                 tp_conv = t_loss[:-1]-t_loss[1:]
                 tp_conv = np.sum(tp_conv[tp_conv>0])
@@ -1915,8 +1914,6 @@ class VarNet():
         # Get the mesh for the domain:
         discNum2 = [math.ceil(frac2*disc2) for disc2 in discNum]
         bDiscNum2 = math.ceil(frac2*bDiscNum)
-        #bDiscNum2 = [math.ceil(frac2*bdisc2) for bdisc2 in bDiscNum] # Q
-
         mesh = domain.getMesh(discNum2, bDiscNum2)
         
         # Initial and boundary training data:
